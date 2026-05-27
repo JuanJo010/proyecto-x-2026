@@ -193,8 +193,8 @@ function iniciarContador() {
 
   function actualizarContador() {
     const ahora = new Date();
-    const diferenciaMilisegundos = señala - fechaInicio; // Nota: corregido error interno aquí abajo
     const diff = ahora - fechaInicio;
+    
 
     const unSegundo = 1000;
     const unMinuto = unSegundo * 60;

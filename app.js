@@ -143,7 +143,9 @@ let urlDescarga = "";
       alert("Por favor, dale un segundo al QR para que termine de dibujarse.");
     }
   };
-}/* ==========================================
+    }
+   
+   /* ==========================================
    3. GESTIÓN DE NUEVA MEMORIA (BASE64)
    ========================================== */
 if ($('#addBtn')) $('#addBtn').onclick = () => $('#modal').classList.remove('hidden');

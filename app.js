@@ -4,31 +4,25 @@ const $$ = (s) => document.querySelectorAll(s);
 /* ==========================================
    SISTEMA DE SEGURIDAD INTERNO (PRIVACIDAD)
    ========================================== */
-// CAMBIA ESTO: Escribe aquí la contraseña secreta para tu sorpresa
-const CONTRASEÑA_CORRECTA = "112753"; 
+const CONTRASEÑA_CORRECTA = "112753"; // <-- CAMBIA ESTO por tu contraseña real
 
 function verificarAcceso() {
-  // Pedir la contraseña mediante un cuadro nativo elegante al cargar
   const intento = prompt("Este es un espacio privado. Por favor, introduce la clave de nuestro momento:");
   
   if (intento === CONTRASEÑA_CORRECTA) {
-    // Si es correcta, permitimos que la app inicialice
-    document.body.style.display = "block"; // Muestra la página
+    document.body.style.display = "block"; 
     render();
     setupGalleryHandlers(); 
     iniciarContador();
   } else {
-    // Si falla, bloqueamos la pantalla para siempre
     alert("Clave incorrecta. No tienes acceso a estos recuerdos.");
     document.body.innerHTML = "<h1 style='color:var(--crimson); text-align:center; margin-top:20vh; font-family:sans-serif;'>Acceso Denegado</h1>";
     document.body.style.display = "block";
   }
 }
 
-// Ocultamos el body de inmediato antes de verificar para que no parpadee el contenido
 document.documentElement.style.background = "#090205";
 
-// El resto de tus variables de la base de datos
 let memories = JSON.parse(localStorage.getItem('moments_db')) || [];
 let mediaItems = [];
 let vistaActual = 'gallery'; 
@@ -37,8 +31,8 @@ let vistaActual = 'gallery';
    SISTEMA DE PLAYLIST CONSTANTE
    ========================================== */
 const playlist = [
-  'music/cancion1.mp3',
-  'music/cancion2.mp3'
+  'cancion1.mp3',
+  'cancion2.mp3'
 ];
 
 let indiceActual = 0;
@@ -59,7 +53,6 @@ document.addEventListener('click', () => {
   }
 }, { once: true });
 
-
 /* ==========================================
    1. ANIMACIÓN DE SALIDA DE LA CARTA
    ========================================== */
@@ -76,7 +69,7 @@ if ($('#enter-btn')) {
 }
 
 /* ==========================================
-   2. SISTEMA DE NAVEGACIÓN (TABS) Y QR (CORREGIDO)
+   2. SISTEMA DE NAVEGACIÓN (TABS) Y QR
    ========================================== */
 $$('.tab').forEach(tab => {
   tab.onclick = (e) => {
@@ -92,9 +85,8 @@ $$('.tab').forEach(tab => {
       render();
     }
     
-    // Si la pestaña elegida es QR, lo generamos en ese mismo instante
     if (targetView === 'qr') {
-      setTimeout(generarQR, 50); // Le damos 50ms para que la pestaña se vuelva visible antes de dibujar
+      setTimeout(generarQR, 50);
     }
   };
 });
@@ -104,10 +96,8 @@ function generarQR() {
   if (!contenedorQR) return;
   
   contenedorQR.innerHTML = "";
-  
   const urlActual = window.location.href;
   
-  // Generamos el QR con el tamaño correcto y bien definido
   new QRCode(contenedorQR, {
     text: urlActual,
     width: 256,
@@ -118,15 +108,13 @@ function generarQR() {
   });
 }
 
-// LÓGICA DE DESCARGA CORREGIDA
 if ($('#downloadQR')) {
   $('#downloadQR').onclick = () => {
-    // Buscamos la imagen generada dentro del contenedor o el lienzo canvas
-    const imgQR = $('#qrcode img')
-const canvas = $('#qrcode canvas');
-let urlDescarga = "";
+    const img = $('#qrcode img');
+    const canvas = $('#qrcode canvas');
+    let urlDescarga = "";
     
-  if (img && img.src && !img.src.startsWith('data:image/svg+xml')) {
+    if (img && img.src && !img.src.startsWith('data:image/svg+xml')) {
       urlDescarga = img.src;
     } else if (canvas) {
       urlDescarga = canvas.toDataURL("image/png");
@@ -143,9 +131,9 @@ let urlDescarga = "";
       alert("Por favor, dale un segundo al QR para que termine de dibujarse.");
     }
   };
-    }
-   
-   /* ==========================================
+}
+
+/* ==========================================
    3. GESTIÓN DE NUEVA MEMORIA (BASE64)
    ========================================== */
 if ($('#addBtn')) $('#addBtn').onclick = () => $('#modal').classList.remove('hidden');
@@ -205,17 +193,18 @@ function iniciarContador() {
 
   function actualizarContador() {
     const ahora = new Date();
-    const diferenciaMilisegundos = ahora - fechaInicio;
+    const diferenciaMilisegundos = señala - fechaInicio; // Nota: corregido error interno aquí abajo
+    const diff = ahora - fechaInicio;
 
     const unSegundo = 1000;
     const unMinuto = unSegundo * 60;
     const unaHora = unMinuto * 60;
     const unDia = unaHora * 24;
 
-    const dias = Math.floor(diferenciaMilisegundos / unDia);
-    const horas = Math.floor((diferenciaMilisegundos % unDia) / unaHora);
-    const minutos = Math.floor((diferenciaMilisegundos % unaHora) / unMinuto);
-    const segundos = Math.floor((diferenciaMilisegundos % unMinuto) / unSegundo);
+    const dias = Math.floor(diff / unDia);
+    const horas = Math.floor((diff % unDia) / unaHora);
+    const minutos = Math.floor((diff % unaHora) / unMinuto);
+    const segundos = Math.floor((diff % unMinuto) / unSegundo);
 
     sectionContador.innerHTML = `
       <span class="label">Time weaving worlds together</span>
@@ -326,8 +315,6 @@ function formatearFecha(fechaStr) {
 
 // INICIALIZACIÓN DE SEGURIDAD AL CARGAR
 document.addEventListener('DOMContentLoaded', () => {
-  // Primero ocultamos el diseño por seguridad
   document.body.style.display = "none";
-  // Llamamos a la verificación de contraseña
   verificarAcceso();
 });

@@ -76,7 +76,7 @@ if ($('#enter-btn')) {
 }
 
 /* ==========================================
-   2. SISTEMA DE NAVEGACIÓN (TABS) Y QR
+   2. SISTEMA DE NAVEGACIÓN (TABS) Y QR (CORREGIDO)
    ========================================== */
 $$('.tab').forEach(tab => {
   tab.onclick = (e) => {
@@ -92,36 +92,55 @@ $$('.tab').forEach(tab => {
       render();
     }
     
-    if (targetView === 'qr') generarQR();
+    // Si la pestaña elegida es QR, lo generamos en ese mismo instante
+    if (targetView === 'qr') {
+      setTimeout(generarQR, 50); // Le damos 50ms para que la pestaña se vuelva visible antes de dibujar
+    }
   };
 });
 
 function generarQR() {
   const contenedorQR = $('#qrcode');
-  if(!contenedorQR) return;
-  const urlActual = window.location.href;
+  if (!contenedorQR) return;
+  
+  // Limpiamos cualquier intento fallido anterior
   contenedorQR.innerHTML = "";
+  
+  // Obtenemos la URL real de internet (https://juanjo010.github.io...)
+  const urlActual = window.location.href;
+  
+  // Generamos el QR con el tamaño correcto y bien definido
   new QRCode(contenedorQR, {
-    text: urlActual, width: 256, height: 256,
-    colorDark : "#000000", colorLight : "#ffffff",
+    text: urlActual,
+    width: 256,
+    height: 256,
+    colorDark : "#000000",
+    colorLight : "#ffffff",
     correctLevel : QRCode.CorrectLevel.H
   });
 }
 
+// LÓGICA DE DESCARGA CORREGIDA
 if ($('#downloadQR')) {
   $('#downloadQR').onclick = () => {
-    const imgQR = $('#qrcode img');
-    if (imgQR && imgQR.src) {
+    // Buscamos la imagen generada dentro del contenedor o el lienzo canvas
+    const imgQR = $('#qrcode img') || $('#qrcode canvas');
+    
+    if (imgQR) {
       const enlace = document.createElement('a');
-      enlace.href = imgQR.src;
-      enlace.download = 'moments-qr.png';
+      
+      // Si la librería generó una imagen normal (src) o un elemento canvas
+      enlace.href = imgQR.src || imgQR.toDataURL("image/png");
+      enlace.download = 'nuestro-momento-qr.png'; // Nombre del archivo al descargarse
+      
       document.body.appendChild(enlace);
       enlace.click();
       document.body.removeChild(enlace);
+    } else {
+      alert("Por favor, espera un segundo a que el código QR termine de generarse.");
     }
   };
 }
-
 /* ==========================================
    3. GESTIÓN DE NUEVA MEMORIA (BASE64)
    ========================================== */

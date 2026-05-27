@@ -37,8 +37,8 @@ let vistaActual = 'gallery';
    SISTEMA DE PLAYLIST CONSTANTE
    ========================================== */
 const playlist = [
-  'cancion1.mp3',
-  'cancion2.mp3'
+  'music/cancion1.mp3',
+  'music/cancion2.mp3'
 ];
 
 let indiceActual = 0;

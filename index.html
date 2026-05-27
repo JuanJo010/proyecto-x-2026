@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Moments</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+
+  <div class="bg-gradient"></div>
+  <div class="vignette"></div>
+
+  <div id="intro-letter">
+    <div class="letter-box animate-fade-up">
+      <span class="sparkle">✦</span>
+      <h1 class="letter-title">For You</h1>
+      <p class="birthday-message">
+        "If I could fold time, I'd keep us in every soft hour — the laughter, the quiet, the way you make ordinary things glow. Happy birthday. Today the world is a little warmer because you were born into it."
+      </p>
+      <button id="enter-btn">Open Memories</button>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">✦</span>
+      <h1>Moments</h1>
+    </div>
+
+    <nav class="tabs">
+      <button class="tab active" data-view="gallery">Gallery</button>
+      <button class="tab" data-view="favorites">Favorites</button>
+      <button class="tab" data-view="qr">QR</button>
+    </nav>
+
+    <div class="actions">
+      <input type="search" id="search" placeholder="Search memories..." />
+      <button id="addBtn" class="primary">＋ New memory</button>
+      <input type="file" id="memory-upload" accept="image/*,video/*" hidden>
+    </div>
+  </header>
+
+  <section id="memoryOfDay" class="memory-of-day hidden">
+    <span class="label">Memory of the day</span>
+    <h2 id="modTitle"></h2>
+    <p id="modDate"></p>
+  </section>
+
+  <main>
+    <section id="view-gallery" class="view active">
+      <div id="gallery" class="gallery-grid"></div>
+    </section>
+
+    <section id="view-favorites" class="view">
+      <div id="favorites" class="gallery-grid"></div>
+    </section>
+
+    <section id="view-qr" class="view">
+      <h2>Share</h2>
+      <div id="qrcode"></div>
+      <p id="qrUrl"></p>
+      <button id="downloadQR" class="primary">Download QR</button>
+    </section>
+  </main>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <button id="closeModal">✕</button>
+      <form id="memoryForm">
+        <input type="hidden" id="memoryId">
+        <input type="text" id="title" placeholder="Title" required>
+        <input type="date" id="date" required>
+        <textarea id="description" placeholder="Description"></textarea>
+        <input type="file" id="media" multiple>
+        <div id="mediaPreview"></div>
+        <button type="submit" class="primary">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="viewer" class="modal hidden">
+    <div class="modal-card">
+      <button id="closeViewer">✕</button>
+      <div id="viewerContent"></div>
+    </div>
+  </div>
+
+  <script src="scripts/qrcode.min.js"></script>
+  <script src="scripts/db.js"></script>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

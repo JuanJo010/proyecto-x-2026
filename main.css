@@ -653,3 +653,25 @@ main {
   color: var(--muted);
   font-size: 1.1rem;
 }
+/* ==========================================
+   AJUSTES FIX PARA EL CONTENEDOR DEL QR
+   ========================================== */
+#qrcode {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 30px auto;
+  min-height: 256px; /* Evita que se aplaste a 0px */
+  width: 256px;      /* Tamaño exacto del QR */
+  height: 256px;
+  background: #ffffff; /* Fondo blanco para que contraste con tu web oscura */
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+#qrcode img, #qrcode canvas {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+}

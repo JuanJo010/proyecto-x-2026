@@ -103,10 +103,8 @@ function generarQR() {
   const contenedorQR = $('#qrcode');
   if (!contenedorQR) return;
   
-  // Limpiamos cualquier intento fallido anterior
   contenedorQR.innerHTML = "";
   
-  // Obtenemos la URL real de internet (https://juanjo010.github.io...)
   const urlActual = window.location.href;
   
   // Generamos el QR con el tamaño correcto y bien definido
@@ -124,24 +122,28 @@ function generarQR() {
 if ($('#downloadQR')) {
   $('#downloadQR').onclick = () => {
     // Buscamos la imagen generada dentro del contenedor o el lienzo canvas
-    const imgQR = $('#qrcode img') || $('#qrcode canvas');
+    const imgQR = $('#qrcode img')
+const canvas = $('#qrcode canvas');
+let urlDescarga = "";
     
-    if (imgQR) {
+  if (img && img.src && !img.src.startsWith('data:image/svg+xml')) {
+      urlDescarga = img.src;
+    } else if (canvas) {
+      urlDescarga = canvas.toDataURL("image/png");
+    }
+    
+    if (urlDescarga) {
       const enlace = document.createElement('a');
-      
-      // Si la librería generó una imagen normal (src) o un elemento canvas
-      enlace.href = imgQR.src || imgQR.toDataURL("image/png");
-      enlace.download = 'nuestro-momento-qr.png'; // Nombre del archivo al descargarse
-      
+      enlace.href = urlDescarga;
+      enlace.download = 'nuestro-momento-qr.png';
       document.body.appendChild(enlace);
       enlace.click();
       document.body.removeChild(enlace);
     } else {
-      alert("Por favor, espera un segundo a que el código QR termine de generarse.");
+      alert("Por favor, dale un segundo al QR para que termine de dibujarse.");
     }
   };
-}
-/* ==========================================
+}/* ==========================================
    3. GESTIÓN DE NUEVA MEMORIA (BASE64)
    ========================================== */
 if ($('#addBtn')) $('#addBtn').onclick = () => $('#modal').classList.remove('hidden');

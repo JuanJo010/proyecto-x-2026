@@ -155,16 +155,41 @@ if ($('#downloadQR')) {
   };
 }
 
-/* ==========================================
-   SISTEMA DE AGREGAR RECUERDOS (PROCESADO DE MEDIOS)
-   ========================================== */
-if ($('#addBtn')) $('#addBtn').onclick = () => $('#modal').classList.remove('hidden');
-if ($('#closeModal')) $('#closeModal').onclick = () => {
-  $('#modal').classList.add('hidden');
-  $('#memoryForm').reset();
-  mediaItems = [];
-};
+/* =========================================================================
+   SISTEMA DE AGREGAR RECUERDOS Y ARREGLO DE CIERRE DE MODAL (BLINDADO)
+   ========================================================================= */
+const modal = $('#modal');
 
+if ($('#addBtn')) {
+  $('#addBtn').onclick = () => {
+    modal.classList.remove('hidden');
+    console.log("Abrir modal"); // Para pruebas
+  }
+}
+
+// FUNCIÓN DE CIERRE BLINDADA: Asegura que se oculte y limpie
+function cerrarModal() {
+  if (modal) {
+    modal.classList.add('hidden');
+    // Limpiamos el formulario y los medios cargados
+    const form = $('#memoryForm');
+    if (form) form.reset();
+    mediaItems = [];
+    console.log("Modal cerrado correctamente"); // Para pruebas
+  }
+}
+
+// Manejadores de cierre
+if ($('#closeModal')) $('#closeModal').onclick = cerrarModal; // Clic en '×'
+
+// Clic en el fondo desenfocado (afuera de la caja) también cierra
+if (modal) {
+  modal.onclick = (e) => {
+    if (e.target === modal) cerrarModal();
+  }
+}
+
+// Cargar medios (sin cambios)
 if ($('#media')) {
   $('#media').onchange = (e) => {
     const files = e.target.files;
@@ -180,9 +205,17 @@ if ($('#media')) {
   };
 }
 
+// Envío del formulario blindado: Guarda y CIERRA
 if ($('#memoryForm')) {
   $('#memoryForm').onsubmit = (e) => {
     e.preventDefault();
+    
+    // Solo guardamos si hay un medio cargado (para evitar errores)
+    if (mediaItems.length === 0) {
+      alert("Por favor, selecciona una foto o video para este momento.");
+      return;
+    }
+
     const nuevaMemoria = {
       id: Date.now(),
       title: $('#title').value || "Momento Juntos",
@@ -191,15 +224,17 @@ if ($('#memoryForm')) {
       cover: mediaItems[0] || null,
       favorite: false 
     };
+    
     memories.unshift(nuevaMemoria);
-    localStorage.setItem('moments_db', JSON.stringify(memories)); // Se graba en disco duro local
-    mediaItems = [];
-    $('#memoryForm').reset();
+    localStorage.setItem('moments_db', JSON.stringify(memories));
+    
+    // 1. Pintamos de nuevo la galería
     render();
-    $('#modal').classList.add('hidden');
+    
+    // 2. Ejecutamos la función blindada de cierre
+    cerrarModal();
   };
 }
-
 /* ==========================================
    RECUADRO DEL TIEMPO CONOCIÉNDONOS (DINÁMICO)
    ========================================== */

@@ -4,23 +4,22 @@ const $$ = (s) => document.querySelectorAll(s);
 /* ==========================================
    SISTEMA DE SEGURIDAD (CONTRASEÑA)
    ========================================== */
-const CONTRASEÑA_CORRECTA = "112753"; // Tu clave
+const CONTRASEÑA_CORRECTA = "112753";
 
 function verificarAcceso() {
   const intento = prompt("Este es un espacio privado. Por favor, introduce la clave de nuestro momento:");
   
   if (intento === CONTRASEÑA_CORRECTA) {
-    crearParticulas(); // Arranca las partículas fluidas
-    render();          // Pinta los cuadros guardados
+    crearParticulas(); 
+    render();          
     setupGalleryHandlers(); 
-    iniciarContador(); // Despliega el contador del tiempo que lleváis
+    iniciarContador(); 
   } else {
     alert("Clave incorrecta. No tienes acceso a estos recuerdos.");
     document.body.innerHTML = "<h1 style='color:#e63956; text-align:center; margin-top:35vh; font-family:sans-serif; font-weight:300; letter-spacing:1px;'>Acceso Denegado</h1>";
   }
 }
 
-// PERSISTENCIA PERMANENTE: Base de datos local para que NUNCA se borren tus cuadros al salir
 let memories = JSON.parse(localStorage.getItem('moments_db')) || [];
 let mediaItems = [];
 let vistaActual = 'gallery'; 
@@ -37,7 +36,6 @@ let indiceActual = 0;
 const reproductor = new Audio(playlist[indiceActual]);
 reproductor.volume = 0.5;
 
-// Salto seguro continuo de canciones y bucle de retorno al inicio
 reproductor.addEventListener('ended', () => {
   indiceActual++;
   if (indiceActual >= playlist.length) {
@@ -47,14 +45,9 @@ reproductor.addEventListener('ended', () => {
   reproductor.play().catch(err => console.log("Pista siguiente bloqueada:", err));
 });
 
-/* ==========================================
-   ANIMACIÓN DE CARTA Y DISPARO DE MÚSICA
-   ========================================== */
 if ($('#enter-btn')) {
   $('#enter-btn').onclick = () => {
-    // Al abrir la carta se autoriza al navegador a liberar el audio
     reproductor.play().catch(err => console.log("Audio esperando acción:", err));
-
     const intro = $('#intro-letter');
     if (intro) {
       intro.style.transition = 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s';
@@ -77,12 +70,12 @@ function crearParticulas() {
     const p = document.createElement('div');
     p.classList.add('particle');
     
-    const size = Math.random() * 6 + 4; // Entre 4px y 10px
+    const size = Math.random() * 6 + 4;
     p.style.width = `${size}px`;
     p.style.height = `${size}px`;
     
     p.style.left = `${Math.random() * 100}vw`;
-    p.style.animationDuration = `${Math.random() * 12 + 8}s`; // Velocidad fluida variable
+    p.style.animationDuration = `${Math.random() * 12 + 8}s`; 
     p.style.animationDelay = `${Math.random() * 8}s`;
     
     container.appendChild(p);
@@ -90,7 +83,7 @@ function crearParticulas() {
 }
 
 /* ==========================================
-   NAVEGACIÓN INTERNA Y DIBUJADO DE QR PERFECTO
+   NAVEGACIÓN INTERNA Y DIBUJADO DE QR
    ========================================== */
 $$('.tab').forEach(tab => {
   tab.onclick = (e) => {
@@ -117,7 +110,7 @@ function generarQR() {
   if (!contenedorQR) return;
   
   contenedorQR.innerHTML = "";
-  const urlActual = window.location.href; // Captura la url del archivo actual
+  const urlActual = window.location.href; 
   
   new QRCode(contenedorQR, {
     text: urlActual,
@@ -129,7 +122,6 @@ function generarQR() {
   });
 }
 
-// SISTEMA DE DESCARGA DIRECTA MULTINAVEGADOR (PC E IPHONE)
 if ($('#downloadQR')) {
   $('#downloadQR').onclick = () => {
     const img = $('#qrcode img');
@@ -155,45 +147,39 @@ if ($('#downloadQR')) {
   };
 }
 
-/* =========================================================================
-   SISTEMA DE AGREGAR RECUERDOS Y ARREGLO DE CIERRE DE MODAL (BLINDADO)
-   ========================================================================= */
-const modal = $('#modal');
+/* ==========================================
+   SISTEMA DE MODAL (ABRIR Y CERRAR TOTALMENTE REALINEADO)
+   ========================================== */
+const modalElement = $('#modal');
 
 if ($('#addBtn')) {
   $('#addBtn').onclick = () => {
-    modal.classList.remove('hidden');
-    console.log("Abrir modal"); // Para pruebas
-  }
+    if (modalElement) modalElement.classList.remove('hidden');
+  };
 }
 
-// FUNCIÓN DE CIERRE BLINDADA: Asegura que se oculte y limpie
-function cerrarModal() {
-  if (modal) {
-    modal.classList.add('hidden');
-    // Limpiamos el formulario y los medios cargados
+function forzarCierreModal() {
+  if (modalElement) {
+    modalElement.classList.add('hidden');
     const form = $('#memoryForm');
     if (form) form.reset();
     mediaItems = [];
-    console.log("Modal cerrado correctamente"); // Para pruebas
   }
 }
 
-// Manejadores de cierre
-if ($('#closeModal')) $('#closeModal').onclick = cerrarModal; // Clic en '×'
+if ($('#closeModal')) $('#closeModal').onclick = forzarCierreModal;
 
-// Clic en el fondo desenfocado (afuera de la caja) también cierra
-if (modal) {
-  modal.onclick = (e) => {
-    if (e.target === modal) cerrarModal();
-  }
+if (modalElement) {
+  modalElement.onclick = (e) => {
+    if (e.target === modalElement) forzarCierreModal();
+  };
 }
 
-// Cargar medios (sin cambios)
 if ($('#media')) {
   $('#media').onchange = (e) => {
     const files = e.target.files;
     if (files.length === 0) return;
+    mediaItems = []; // Reiniciamos para evitar acumulaciones masivas
 
     for (let file of files) {
       const lector = new FileReader();
@@ -205,17 +191,10 @@ if ($('#media')) {
   };
 }
 
-// Envío del formulario blindado: Guarda y CIERRA
 if ($('#memoryForm')) {
   $('#memoryForm').onsubmit = (e) => {
     e.preventDefault();
     
-    // Solo guardamos si hay un medio cargado (para evitar errores)
-    if (mediaItems.length === 0) {
-      alert("Por favor, selecciona una foto o video para este momento.");
-      return;
-    }
-
     const nuevaMemoria = {
       id: Date.now(),
       title: $('#title').value || "Momento Juntos",
@@ -228,22 +207,19 @@ if ($('#memoryForm')) {
     memories.unshift(nuevaMemoria);
     localStorage.setItem('moments_db', JSON.stringify(memories));
     
-    // 1. Pintamos de nuevo la galería
     render();
-    
-    // 2. Ejecutamos la función blindada de cierre
-    cerrarModal();
+    forzarCierreModal(); // Desaparece al instante
   };
 }
+
 /* ==========================================
-   RECUADRO DEL TIEMPO CONOCIÉNDONOS (DINÁMICO)
+   RECUADRO DEL TIEMPO CONOCIÉNDONOS
    ========================================== */
 function iniciarContador() {
   const sectionContador = $('#memoryOfDay');
   if (!sectionContador) return;
 
   sectionContador.classList.remove('hidden');
-  // Ajuste de vuestra fecha exacta (Año, Mes-1 [0=Enero], Día, Hora, Minutos)
   const fechaInicio = new Date(2026, 0, 21, 18, 8, 0); 
 
   function actualizarContador() {
@@ -257,7 +233,7 @@ function iniciarContador() {
 
     const dias = Math.floor(diff / unDia);
     const horas = Math.floor((diff % unDia) / unaHora);
-    const minutos = Math.floor((diff % unaHora) / unMinuto);
+    const minutes = Math.floor((diff % unaHora) / unMinuto);
     const segundos = Math.floor((diff % unMinuto) / unSegundo);
 
     sectionContador.innerHTML = `
@@ -265,7 +241,7 @@ function iniciarContador() {
       <div class="counter-grid">
         <div class="counter-box"><span class="counter-number">${dias}</span><span class="counter-unit">Días</span></div>
         <div class="counter-box"><span class="counter-number">${horas}</span><span class="counter-unit">Horas</span></div>
-        <div class="counter-box"><span class="counter-number">${minutos}</span><span class="counter-unit">Min</span></div>
+        <div class="counter-box"><span class="counter-number">${minutes}</span><span class="counter-unit">Min</span></div>
         <div class="counter-box"><span class="counter-number">${segundos}</span><span class="counter-unit">Seg</span></div>
       </div>
       <p id="modDate">...desde que una palabra ordinaria dio inicio a nuestra historia extraordinaria.</p>
@@ -276,7 +252,7 @@ function iniciarContador() {
 }
 
 /* ==========================================
-   MANEJADORES INTERNOS DE LA MINIATURA (FAV Y BORRADO)
+   MANEJADORES INTERNOS DE MINIATURA
    ========================================== */
 function setupGalleryHandlers() {
   ['#gallery', '#favorites'].forEach(selector => {
@@ -353,7 +329,6 @@ function render() {
   }).join('');
 }
 
-// INICIALIZADOR AUTOMÁTICO SEGURO AL CARGAR LA PÁGINA
 document.addEventListener('DOMContentLoaded', () => {
   verificarAcceso();
 });

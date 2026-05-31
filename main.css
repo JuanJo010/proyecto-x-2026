@@ -164,21 +164,47 @@ main { max-width: 1140px; margin: 0 auto; padding: 30px 20px; position: relative
 .delete-btn { right: 14px; color: rgba(255,255,255,0.6); }
 .delete-btn:hover { background: var(--crimson); color: white; }
 
-/* SECCIÓN DEL CUADRO QR PERFECTO */
-.qr-container { text-align: center; max-width: 420px; margin: 40px auto; background: var(--card-bg); padding: 35px; border-radius: 24px; border: 1px solid var(--glass-border); box-shadow: 0 20px 45px rgba(0,0,0,0.5); }
+/* =========================================================================
+   SECCIÓN DEL CUADRO QR PERFECTO (REEMPLAZO FINAL BLINDADO)
+   ========================================================================= */
+.qr-container { 
+    text-align: center; 
+    max-width: 420px; 
+    margin: 40px auto; 
+    background: var(--card-bg); 
+    padding: 35px; 
+    border-radius: 24px; 
+    border: 1px solid var(--glass-border); 
+    box-shadow: 0 20px 45px rgba(0,0,0,0.5); 
+}
 .qr-container h3 { color: var(--accent); margin-bottom: 12px; font-weight: 500; }
 .qr-container p { color: var(--muted); font-size: 0.9rem; margin-bottom: 30px; line-height: 1.5; }
 
+/* El cuadro blanco contenedor */
 #qrcode {
-    display: flex !important; justify-content: center !important; align-items: center !important;
+    display: flex !important; 
+    justify-content: center !important; 
+    align-items: center !important;
     margin: 0 auto 35px auto !important;
-    width: 256px !important; height: 256px !important;
-    min-height: 256px !important; min-width: 256px !important;
-    background: #ffffff !important; padding: 15px !important; border-radius: 16px !important;
+    width: 200px !important;       /* Tamaño ideal para escanear */
+    height: 200px !important;      /* Proporción cuadrada perfecta */
+    background: #ffffff !important; 
+    padding: 12px !important; 
+    border-radius: 16px !important;
     box-shadow: 0 15px 30px rgba(0,0,0,0.6) !important;
+    overflow: hidden !important;   /* Evita que cualquier duplicado se salga */
 }
-#qrcode img, #qrcode canvas { display: block !important; width: 100% !important; height: 100% !important; }
 
+/* Ocultamos el canvas duplicado y obligamos a la imagen limpia a medir el 100% del cuadro blanco */
+#qrcode canvas { 
+    display: none !important; 
+}
+#qrcode img { 
+    display: block !important; 
+    width: 100% !important; 
+    height: 100% !important; 
+    object-fit: contain !important;
+}
 /* MODAL / FORMULARIO */
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 1000; }
 .modal.hidden { display: none !important; } /* Fuerza la desaparición total */

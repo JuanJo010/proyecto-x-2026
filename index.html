@@ -1,97 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Moments</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="styles/main.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestro Espacio Secreto ✦ Moments</title>
+    <link rel="stylesheet" href="main.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
-  <div class="bg-gradient"></div>
-  <div class="vignette"></div>
+    <div id="particles-container"></div>
 
-  <div id="intro-letter">
-    <div class="letter-box animate-fade-up">
-      <span class="sparkle">✦</span>
-      <h1 class="letter-title">For You</h1>
-      <p class="birthday-message">
-        "If I could fold time, I'd keep us in every soft hour — the laughter, the quiet, the way you make ordinary things glow. Happy birthday. Today the world is a little warmer because you were born into it."
-      </p>
-      <button id="enter-btn">Open Memories</button>
-    </div>
-  </div>
-
-  <header class="topbar">
-    <div class="brand">
-      <span class="brand-mark">✦</span>
-      <h1>Moments</h1>
+    <div id="intro-letter">
+        <div class="letter-body">
+            <h2>Para Alguien Especial... 🤍</h2>
+            <p>Este es nuestro rincón secreto. Un espacio diseñado para congelar en el tiempo cada uno de nuestros momentos compartidos. Cada segundo a tu lado cuenta.</p>
+            <button id="enter-btn">Abrir Sorpresa ✦</button>
+        </div>
     </div>
 
-    <nav class="tabs">
-      <button class="tab active" data-view="gallery">Gallery</button>
-      <button class="tab" data-view="favorites">Favorites</button>
-      <button class="tab" data-view="qr">QR</button>
-    </nav>
+    <header>
+        <div class="logo">✦ Moments</div>
+        <nav class="tabs-container">
+            <button class="tab active" data-view="gallery">Galería</button>
+            <button class="tab" data-view="favorites">Favoritos</button>
+            <button class="tab" data-view="qr">Código QR</button>
+        </nav>
+        <button id="addBtn" class="btn-primary">＋ New memory</button>
+    </header>
 
-    <div class="actions">
-      <input type="search" id="search" placeholder="Search memories..." />
-      <button id="addBtn" class="primary">＋ New memory</button>
-      <input type="file" id="memory-upload" accept="image/*,video/*" hidden>
+    <main>
+        <section id="memoryOfDay" class="hidden"></section>
+
+        <div id="view-gallery" class="view active">
+            <div id="gallery" class="gallery-grid"></div>
+        </div>
+
+        <div id="view-favorites" class="view">
+            <div id="favorites" class="gallery-grid"></div>
+        </div>
+
+        <div id="view-qr" class="view">
+            <div class="qr-container">
+                <h3>Lleva nuestros recuerdos contigo</h3>
+                <p>Escanea este código con la cámara de tu iPhone para abrir nuestro espacio secreto en cualquier lugar o presiona el botón inferior para guardarlo.</p>
+                
+                <div id="qrcode"></div>
+                
+                <button id="downloadQR" class="btn-primary">Download QR</button>
+            </div>
+        </div>
+    </main>
+
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <span id="closeModal" class="close">&times;</span>
+            <h2>Add New Memory</h2>
+            <form id="memoryForm">
+                <input type="text" id="title" placeholder="¿Cómo llamarás a este momento?" required>
+                <input type="date" id="date" required>
+                <textarea id="description" placeholder="Escribe un recuerdo inolvidable de este día..." rows="3"></textarea>
+                <label class="file-label">
+                    <span>Seleccionar Foto o Video de tu dispositivo</span>
+                    <input type="file" id="media" accept="image/*,video/*" required>
+                </label>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 15px;">Guardar en la eternidad</button>
+            </form>
+        </div>
     </div>
-  </header>
 
-  <section id="memoryOfDay" class="memory-of-day hidden">
-    <span class="label">Memory of the day</span>
-    <h2 id="modTitle"></h2>
-    <p id="modDate"></p>
-  </section>
-
-  <main>
-    <section id="view-gallery" class="view active">
-      <div id="gallery" class="gallery-grid"></div>
-    </section>
-
-    <section id="view-favorites" class="view">
-      <div id="favorites" class="gallery-grid"></div>
-    </section>
-
-    <section id="view-qr" class="view">
-      <h2>Share</h2>
-      <div id="qrcode"></div>
-      <p id="qrUrl"></p>
-      <button id="downloadQR" class="primary">Download QR</button>
-    </section>
-  </main>
-
-  <div id="modal" class="modal hidden">
-    <div class="modal-card">
-      <button id="closeModal">✕</button>
-      <form id="memoryForm">
-        <input type="hidden" id="memoryId">
-        <input type="text" id="title" placeholder="Title" required>
-        <input type="date" id="date" required>
-        <textarea id="description" placeholder="Description"></textarea>
-        <input type="file" id="media" multiple>
-        <div id="mediaPreview"></div>
-        <button type="submit" class="primary">Save</button>
-      </form>
-    </div>
-  </div>
-
-  <div id="viewer" class="modal hidden">
-    <div class="modal-card">
-      <button id="closeViewer">✕</button>
-      <div id="viewerContent"></div>
-    </div>
-  </div>
-
-  <script src="scripts/qrcode.min.js"></script>
-  <script src="scripts/db.js"></script>
-  <script src="scripts/app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>

@@ -2,33 +2,31 @@ const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
 /* ==========================================
-   SISTEMA DE SEGURIDAD INTERNO (PRIVACIDAD)
+   SISTEMA DE SEGURIDAD (CONTRASEÑA)
    ========================================== */
-const CONTRASEÑA_CORRECTA = "112753"; // <-- CAMBIA ESTO por tu contraseña real
+const CONTRASEÑA_CORRECTA = "112753"; // Tu clave
 
 function verificarAcceso() {
   const intento = prompt("Este es un espacio privado. Por favor, introduce la clave de nuestro momento:");
   
   if (intento === CONTRASEÑA_CORRECTA) {
-    document.body.style.display = "block"; 
-    render();
+    crearParticulas(); // Arranca las partículas fluidas
+    render();          // Pinta los cuadros guardados
     setupGalleryHandlers(); 
-    iniciarContador();
+    iniciarContador(); // Despliega el contador del tiempo que lleváis
   } else {
     alert("Clave incorrecta. No tienes acceso a estos recuerdos.");
-    document.body.innerHTML = "<h1 style='color:var(--crimson); text-align:center; margin-top:20vh; font-family:sans-serif;'>Acceso Denegado</h1>";
-    document.body.style.display = "block";
+    document.body.innerHTML = "<h1 style='color:#e63956; text-align:center; margin-top:35vh; font-family:sans-serif; font-weight:300; letter-spacing:1px;'>Acceso Denegado</h1>";
   }
 }
 
-document.documentElement.style.background = "#090205";
-
+// PERSISTENCIA PERMANENTE: Base de datos local para que NUNCA se borren tus cuadros al salir
 let memories = JSON.parse(localStorage.getItem('moments_db')) || [];
 let mediaItems = [];
 let vistaActual = 'gallery'; 
 
 /* ==========================================
-   SISTEMA DE PLAYLIST CONSTANTE
+   PLAYLIST DE MÚSICA CONSTANTE EN LOOP
    ========================================== */
 const playlist = [
   'cancion1.mp3',
@@ -38,38 +36,61 @@ const playlist = [
 let indiceActual = 0;
 const reproductor = new Audio(playlist[indiceActual]);
 reproductor.volume = 0.5;
-reproductor.loop = false; 
 
+// Salto seguro continuo de canciones y bucle de retorno al inicio
 reproductor.addEventListener('ended', () => {
   indiceActual++;
-  if (indiceActual >= playlist.length) indiceActual = 0;
+  if (indiceActual >= playlist.length) {
+    indiceActual = 0; 
+  }
   reproductor.src = playlist[indiceActual];
-  reproductor.play().catch(err => console.log("Error al pasar de canción:", err));
+  reproductor.play().catch(err => console.log("Pista siguiente bloqueada:", err));
 });
 
-document.addEventListener('click', () => {
-  if (reproductor.paused && $('#intro-letter')) {
-    reproductor.play().catch(err => console.log("Audio esperando clic:", err));
-  }
-}, { once: true });
-
 /* ==========================================
-   1. ANIMACIÓN DE SALIDA DE LA CARTA
+   ANIMACIÓN DE CARTA Y DISPARO DE MÚSICA
    ========================================== */
 if ($('#enter-btn')) {
   $('#enter-btn').onclick = () => {
+    // Al abrir la carta se autoriza al navegador a liberar el audio
+    reproductor.play().catch(err => console.log("Audio esperando acción:", err));
+
     const intro = $('#intro-letter');
-    intro.style.transition = 'opacity 0.8s ease, visibility 0.8s';
-    intro.style.opacity = '0';
-    intro.style.visibility = 'hidden';
-    setTimeout(() => {
-      intro.remove();
-    }, 800);
+    if (intro) {
+      intro.style.transition = 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s';
+      intro.style.opacity = '0';
+      intro.style.visibility = 'hidden';
+      setTimeout(() => { intro.remove(); }, 800);
+    }
   };
 }
 
 /* ==========================================
-   2. SISTEMA DE NAVEGACIÓN (TABS) Y QR
+   PARTÍCULAS EN MOVIMIENTO CONSTANTE
+   ========================================== */
+function crearParticulas() {
+  const container = $('#particles-container');
+  if (!container) return;
+  const numParticulas = 30;
+  
+  for(let i=0; i<numParticulas; i++) {
+    const p = document.createElement('div');
+    p.classList.add('particle');
+    
+    const size = Math.random() * 6 + 4; // Entre 4px y 10px
+    p.style.width = `${size}px`;
+    p.style.height = `${size}px`;
+    
+    p.style.left = `${Math.random() * 100}vw`;
+    p.style.animationDuration = `${Math.random() * 12 + 8}s`; // Velocidad fluida variable
+    p.style.animationDelay = `${Math.random() * 8}s`;
+    
+    container.appendChild(p);
+  }
+}
+
+/* ==========================================
+   NAVEGACIÓN INTERNA Y DIBUJADO DE QR PERFECTO
    ========================================== */
 $$('.tab').forEach(tab => {
   tab.onclick = (e) => {
@@ -96,7 +117,7 @@ function generarQR() {
   if (!contenedorQR) return;
   
   contenedorQR.innerHTML = "";
-  const urlActual = window.location.href;
+  const urlActual = window.location.href; // Captura la url del archivo actual
   
   new QRCode(contenedorQR, {
     text: urlActual,
@@ -108,6 +129,7 @@ function generarQR() {
   });
 }
 
+// SISTEMA DE DESCARGA DIRECTA MULTINAVEGADOR (PC E IPHONE)
 if ($('#downloadQR')) {
   $('#downloadQR').onclick = () => {
     const img = $('#qrcode img');
@@ -128,13 +150,13 @@ if ($('#downloadQR')) {
       enlace.click();
       document.body.removeChild(enlace);
     } else {
-      alert("Por favor, dale un segundo al QR para que termine de dibujarse.");
+      alert("Espera un instante a que el código termine de estructurarse.");
     }
   };
 }
 
 /* ==========================================
-   3. GESTIÓN DE NUEVA MEMORIA (BASE64)
+   SISTEMA DE AGREGAR RECUERDOS (PROCESADO DE MEDIOS)
    ========================================== */
 if ($('#addBtn')) $('#addBtn').onclick = () => $('#modal').classList.remove('hidden');
 if ($('#closeModal')) $('#closeModal').onclick = () => {
@@ -152,9 +174,6 @@ if ($('#media')) {
       const lector = new FileReader();
       lector.onload = (evento) => {
         mediaItems.push({ src: evento.target.result, type: file.type });
-        if (mediaItems.length === files.length) {
-          alert("¡Foto procesada con éxito!");
-        }
       };
       lector.readAsDataURL(file);
     }
@@ -166,14 +185,14 @@ if ($('#memoryForm')) {
     e.preventDefault();
     const nuevaMemoria = {
       id: Date.now(),
-      title: $('#title').value || "Untitled Moment",
+      title: $('#title').value || "Momento Juntos",
       date: $('#date').value || new Date().toISOString().split('T')[0],
       description: $('#description').value,
       cover: mediaItems[0] || null,
       favorite: false 
     };
     memories.unshift(nuevaMemoria);
-    saveToDisk();
+    localStorage.setItem('moments_db', JSON.stringify(memories)); // Se graba en disco duro local
     mediaItems = [];
     $('#memoryForm').reset();
     render();
@@ -182,19 +201,19 @@ if ($('#memoryForm')) {
 }
 
 /* ==========================================
-   4. LÓGICA DEL CONTADOR DE TIEMPO
+   RECUADRO DEL TIEMPO CONOCIÉNDONOS (DINÁMICO)
    ========================================== */
 function iniciarContador() {
   const sectionContador = $('#memoryOfDay');
   if (!sectionContador) return;
 
   sectionContador.classList.remove('hidden');
+  // Ajuste de vuestra fecha exacta (Año, Mes-1 [0=Enero], Día, Hora, Minutos)
   const fechaInicio = new Date(2026, 0, 21, 18, 8, 0); 
 
   function actualizarContador() {
     const ahora = new Date();
     const diff = ahora - fechaInicio;
-    
 
     const unSegundo = 1000;
     const unMinuto = unSegundo * 60;
@@ -207,14 +226,14 @@ function iniciarContador() {
     const segundos = Math.floor((diff % unMinuto) / unSegundo);
 
     sectionContador.innerHTML = `
-      <span class="label">Time weaving worlds together</span>
+      <span class="label">El tiempo que llevamos construyendo nuestro mundo</span>
       <div class="counter-grid">
-        <div class="counter-box"><span class="counter-number">${dias}</span><span class="counter-unit">Days</span></div>
-        <div class="counter-box"><span class="counter-number">${horas}</span><span class="counter-unit">Hours</span></div>
-        <div class="counter-box"><span class="counter-number">${minutos}</span><span class="counter-unit">Mins</span></div>
-        <div class="counter-box"><span class="counter-number">${segundos}</span><span class="counter-unit">Secs</span></div>
+        <div class="counter-box"><span class="counter-number">${dias}</span><span class="counter-unit">Días</span></div>
+        <div class="counter-box"><span class="counter-number">${horas}</span><span class="counter-unit">Horas</span></div>
+        <div class="counter-box"><span class="counter-number">${minutos}</span><span class="counter-unit">Min</span></div>
+        <div class="counter-box"><span class="counter-number">${segundos}</span><span class="counter-unit">Seg</span></div>
       </div>
-      <p id="modDate">...since the very first word changed our ordinary hours.</p>
+      <p id="modDate">...desde que una palabra ordinaria dio inicio a nuestra historia extraordinaria.</p>
     `;
   }
   actualizarContador();
@@ -222,12 +241,10 @@ function iniciarContador() {
 }
 
 /* ==========================================
-   5. ACCIONES DE LA GALERÍA (BORRAR Y FAVORITOS)
+   MANEJADORES INTERNOS DE LA MINIATURA (FAV Y BORRADO)
    ========================================== */
 function setupGalleryHandlers() {
-  const contenedores = ['#gallery', '#favorites'];
-  
-  contenedores.forEach(selector => {
+  ['#gallery', '#favorites'].forEach(selector => {
     const el = $(selector);
     if (!el) return;
     
@@ -235,9 +252,9 @@ function setupGalleryHandlers() {
       const deleteBtn = e.target.closest('.delete-btn');
       if (deleteBtn) {
         const idToDelete = parseInt(deleteBtn.getAttribute('data-id'));
-        if (confirm("Are you sure you want to delete this memory?")) {
+        if (confirm("¿Estás seguro de que deseas eliminar permanentemente esta memoria de nuestro espacio?")) {
           memories = memories.filter(m => m.id !== idToDelete);
-          saveToDisk();
+          localStorage.setItem('moments_db', JSON.stringify(memories));
           render();
         }
         return;
@@ -250,19 +267,15 @@ function setupGalleryHandlers() {
           if (m.id === idToFav) return { ...m, favorite: !m.favorite };
           return m;
         });
-        saveToDisk();
+        localStorage.setItem('moments_db', JSON.stringify(memories));
         render(); 
       }
     });
   });
 }
 
-function saveToDisk() {
-  localStorage.setItem('moments_db', JSON.stringify(memories));
-}
-
 /* ==========================================
-   6. RENDERIZAR EN PANTALLA
+   RENDERIZADOR GENERAL DE TARJETAS MINIATURA
    ========================================== */
 function render() {
   const contenedorDestino = vistaActual === 'gallery' ? $('#gallery') : $('#favorites');
@@ -275,46 +288,37 @@ function render() {
 
   if (recuerdosFiltrados.length === 0) {
     const mensajeVacio = vistaActual === 'gallery'
-      ? "No memories saved yet. Click '＋ New memory' to start."
-      : "You haven't marked any memories as favorites yet. Tap the ✦ star on any photo!";
-    contenedorDestino.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--muted); padding: 40px;">${mensajeVacio}</p>`;
+      ? "No hay recuerdos guardados aún. Presiona '＋ New memory' para empezar."
+      : "No has marcado ninguna memoria como favorita todavía. Presiona la estrella ✦ en tus fotos.";
+    contenedorDestino.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--muted); padding: 50px; font-style: italic;">${mensajeVacio}</p>`;
     return;
   }
 
   contenedorDestino.innerHTML = recuerdosFiltrados.map(m => {
     let mediaHTML = "";
     if (m.cover && m.cover.type && m.cover.type.startsWith("video")) {
-      mediaHTML = `<video src="${m.cover.src}" muted loop autoplay></video>`;
+      mediaHTML = `<video src="${m.cover.src}" muted loop autoplay playsinline></video>`;
     } else if (m.cover && m.cover.src) {
       mediaHTML = `<img src="${m.cover.src}" alt="${m.title}">`;
-    } else {
-      mediaHTML = `<img src="https://via.placeholder.com/400x250?text=Moment" style="filter: grayscale(1); opacity: 0.3;">`;
     }
 
     const claseFavorito = m.favorite ? 'fav-btn active' : 'fav-btn';
 
     return `
       <div class="gallery-card">
-        <button class="${claseFavorito}" data-id="${m.id}" title="Mark as favorite">✦</button>
-        <button class="delete-btn" data-id="${m.id}" title="Delete memory">✕</button>
+        <button class="${claseFavorito}" data-id="${m.id}" title="Guardar en Favoritos">✦</button>
+        <button class="delete-btn" data-id="${m.id}" title="Eliminar Recuerdo">✕</button>
         <div class="media-container"> ${mediaHTML} </div>
         <div class="info">
           <h3>${m.title}</h3>
-          <small>${formatearFecha(m.date)}</small>
+          <small>${new Date(m.date).toLocaleDateString(undefined, {year: 'numeric', month: 'long', day: 'numeric'})}</small>
         </div>
       </div>
     `;
   }).join('');
 }
 
-function formatearFecha(fechaStr) {
-  if(!fechaStr) return "";
-  const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
-  return new Date(fechaStr).toLocaleDateString(undefined, opciones);
-}
-
-// INICIALIZACIÓN DE SEGURIDAD AL CARGAR
+// INICIALIZADOR AUTOMÁTICO SEGURO AL CARGAR LA PÁGINA
 document.addEventListener('DOMContentLoaded', () => {
-  document.body.style.display = "none";
   verificarAcceso();
 });
